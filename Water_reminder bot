@@ -1,0 +1,80 @@
+import telebot
+import time
+from random import choice
+token = '8578235504:AAHRjYdCFGtiZ9M_jqEB83hr2IjMePA_yCc'
+users = {}
+shablons = ['💧 Пора сделать пару глотков воды',
+
+'🚰 Самое время попить воды',
+
+'⏰ Небольшая пауза — вода ждёт',
+
+'💙 Напоминание: вода = забота о себе']
+bot = telebot.TeleBot(token)
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.send_message(message.chat.id,'Привет! 👋\
+                     \nЯ твой водный помощник 💧\
+        \nМоя задача - напоминать тебе пить воду и заботиться о своём теле.\
+            \n\nЧтобы я мог напоминать в удобное тебе время напиши\
+                \n/setreminder 5 - где 5 указывает через сколько часов тебе напомнить')
+    users[message.chat.id] = {}
+    users[message.chat.id]['drank'] = 0
+@bot.message_handler(commands=['setreminder'])
+def remind(message):
+    f = True
+    
+    try:
+        t = int(message.text.split()[1])
+        bot.send_message(message.chat.id, f'Напоминание будет выслано через {t} часов' )
+        time.sleep(t )
+        
+    except IndexError:
+        f = False
+        bot.send_message(message.chat.id, 
+'''
+Похоже вы что-то ввели не верно
+⬇️Попробуйте отправить в формате:
+/setreminder x -где x указывает время
+через которое вам надо напомнить выпить воды''')
+    if f:
+        bot.send_message(message.chat.id, choice(shablons))
+@bot.message_handler(commands=['drank'])
+def drank(message):
+    f = True
+    try:
+        water =int(message.text.split()[1])
+        users[message.chat.id]['drank'] += int(message.text.split()[1])
+        if users[message.chat.id]['drank'] > 2000:
+            users[message.chat.id]['drank'] = 2000
+    except IndexError:
+        f = False
+        bot.send_message(message.chat.id, 'Хмм...\
+            \nПоходу ты забыл добавить количество воды ,которое ты выпил')
+    if f:
+        bot.send_message(message.chat.id,'''
+Ещё воды к твоему организму 💧
+Так держать 👏 Вода засчитана
+Молодец! Забота о себе — это важно 💙''')
+@bot.message_handler(commands=['status'])
+def stats(message):
+    water = users[message.chat.id]['drank']
+    percent = int(water / 2000 * 100)
+    if water == 2000:
+        bot.send_message(message.chat.id,
+f'''
+Вода за сегодня
+━━━━━━━━━━━━━━
+Выпито: 2000 / 2000😵
+Прогресс: {10 * '█'} 😧
+Осталось: 0 мл ☠️''')
+    else:
+        bot.send_message(message.chat.id, 
+f'''💧 Вода за сегодня
+━━━━━━━━━━━━━━
+Выпито: {water} / 2000 мл
+Прогресс: {(percent // 10) * '█'}{((100 - percent) // 10) * '░'} {percent}%
+Осталось: {2000 - water} мл
+''')
+    
+bot.infinity_polling()
