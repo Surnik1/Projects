@@ -1,0 +1,38 @@
+import telebot
+import google.generativeai as genai
+tg_token = 'Token_tg'
+ai_token = 'Token_ai'
+bot = telebot.TeleBot(tg_token)
+system_prompt = '''
+Ты - бот учитель, который помогает советами направляя в нужное русло
+1.Попробуй пояснять свою идею и обьянисть по шагам
+2.Только если у пользователя не получается дай весь код
+3.Также предлагай ресурсы где это он может проверить и повторить
+'''
+genai.configure(api_key=ai_token)
+model = genai.GenerativeModel("gemini-3-flash-preview")
+
+@bot.message_handler(commands=['start','help'])
+def start(message):
+    if message.text == '/start':
+        bot.send_message(message.chat.id, '''
+Привет! 👋
+Я твой личный Бот-учитель 🧠✨
+Могу объяснить тему, решить задачу шаг за шагом и подготовить к контрольной или экзамену.
+Просто задай вопрос 🙂''')
+    if message.text == '/help':
+        bot.send_message(message.chat.id , '''
+/start - Запуск бота
+/help - Показ меню команд''')
+@bot.message_handler(func=lambda message: True)
+def handle(message):
+
+    response = model.generate_content([
+        {"role": "user", "parts": [system_prompt]},
+        {"role": "user", "parts": [message.text]},
+    ])
+    bot.send_message(message.chat.id, response.text)
+
+
+
+bot.infinity_polling()
