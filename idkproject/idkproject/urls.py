@@ -18,13 +18,9 @@ from django.contrib import admin
 from django.urls import path,re_path
 from idkapp import views
 urlpatterns = [
-    path('p/1', views.tablet),
-    path('p/2', views.phone),
-    path('p', views.products),
-    path('user/<str:name>/', views.user),
-    re_path(r'^contact' , views.contact),
-    re_path(r'^about' , views.about),
-    path('', views.index,name='Home'),
+    path('', views.index),
+    path('info',views.get_info),
+    path('users/<str:name>',views.user)
     
     
 ]
