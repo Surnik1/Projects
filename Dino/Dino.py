@@ -1,7 +1,8 @@
 import pygame
 import sys
-from random import randint
+from random import randint,shuffle
 pygame.init()
+pygame.mixer.init()
 h,w = 600,400
 icon = pygame.image.load('DINO_ICON.png')
 pygame.display.set_icon(icon)
@@ -40,7 +41,23 @@ gravity = 0.9
 on_ground = True
 jump_power = -17
 velocity_y = 0
+#Музыка
+playlist = ["1.mp3", "2.mp3", "3.mp3"]
+shuffle(playlist)  # Перемешали один раз при запуске
+current_track_index = 0
 
+def play_next():
+    global current_track_index
+    pygame.mixer.music.load(playlist[current_track_index])
+    pygame.mixer.music.play()
+    current_track_index += 1
+    if current_track_index >= len(playlist):
+        shuffle(playlist)
+        current_track_index = 0
+play_next()
+pygame.mixer.music.set_volume(0.2)
+jump_sound = pygame.mixer.Sound("jump.mp3")
+death_sound = pygame.mixer.Sound("death.mp3")
 #мигалка
 blink_active = False      
 blink_timer = 0            
@@ -50,6 +67,7 @@ blink_max = 6
 text_visible = True 
 
 font = pygame.font.Font(None, 30)#тексст
+st = pygame.font.Font('PressStart2P-Regular.ttf', 15)#тексст
 dead = False
 #очки
 cnt = 0
@@ -88,29 +106,35 @@ def fill():
         screen.blit(text_score, (10, 10))
     screen.blit(text_best_score, (10, 30))
     screen.blit(jumps, (10, 50))
-
+    
     screen.blit(dino, (dino_pos[0], dino_pos[1]))
-    pygame.display.flip()
+start = True
+death_play = True
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
+    
     keys = pygame.key.get_pressed()
     #система прыжка
     velocity_y += gravity
     dino_pos[1] += velocity_y
     
+    if not pygame.mixer.music.get_busy():
+        play_next()
     if (keys[pygame.K_UP] or pygame.mouse.get_pressed()[0] or keys[pygame.K_SPACE] or keys[pygame.K_w])   and on_ground :
         dino_pos[1] -= 5
         velocity_y = jump_power
         count_jump += 1
         on_ground = False
         run = True
+        start = False
+        jump_sound.play()
     if keys[pygame.K_r] and not run:
         if count_jump != 0:
             print(f'You jumped {count_jump} times.')
+        death_play = True
         restart()
     #если на земле
     if dino_pos[1] >= 300 and not dead:
@@ -127,9 +151,12 @@ while True:
     # есть столк
     enemies = [pygame.Rect(i, 290, 20, 40) for i in cac_pos if 0 < i < 400]
     for enemy in enemies:
-        if player.colliderect(enemy) and   True :   
+        if player.colliderect(enemy):   
             run = False
             dead = True
+            if death_play:
+                death_sound.play()
+                death_play = False
      
         
     if run:
@@ -178,6 +205,7 @@ while True:
         speed += 0.1
     if dead:
         dino = dino_dead
+        
     #мигание счетчика
     if score %100 == 3 and score != 0 and not blink_active:
         blink_active = True
@@ -204,5 +232,13 @@ while True:
         best_score = score
     name = font.render("", True, (0, 0, 0))
     fill()
+    if start:
+        screen.fill((255,255,255))
+        start_text = st.render('For beginning press UP or W or SPACE', True, (0, 0, 0))
+        screen.blit(start_text, (h//2 - start_text.get_width() // 2,w//2 - start_text.get_height() // 2))
+    if dead:
+        screen.fill((255,255,255))
+        restart_text = st.render('For restart press R', True, (0, 0, 0))
+        screen.blit(restart_text, (h//2 - restart_text.get_width() // 2,w//2 - restart_text.get_height() // 2))
     pygame.display.flip()
     clock.tick(60)
