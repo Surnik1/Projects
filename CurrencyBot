@@ -8,11 +8,11 @@ bot = telebot.TeleBot(tg_bot_key)
 
 
 def get_exchange(base, target):
-    url = f"https://v6.exchangerate-api.com/v6/{exchanger_key}/latest/{base}"
+    url = f"https://v6.exchangerate-api.com/v6/03e0c81500adaac97a59e416/latest/{base}"
     response = requests.get(url)
     data = response.json()
-    if response.status_code == 200 and target in data["rates"]:
-        return data["rates"][target]
+    if response.status_code == 200 and target in data["conversion_rates"]:
+        return data["conversion_rates"][target]
     else:
         return None
 
@@ -74,7 +74,7 @@ def convert(message):
         if not rate:
             a = int("kdd")
         result = amount * rate
-        bot.send_message(message.chat.id, f"{amount} {base} = {result:.2f} {target}")
+        bot.send_message(message.chat.id, f"{amount} {base} = {result:.3f} {target}")
     except ZeroDivisionError:
         bot.send_message(
             message.chat.id, "You done something wrong.\nExample:\n100 USD KZT\nUSD KZT"
