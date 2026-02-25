@@ -1,45 +1,48 @@
 import telebot
 import requests
 from telebot import types
-tg_bot_key = 'Bot_Father_token'
-exchanger_key = 'Token_https://www.exchangerate-api.com/'
 
+tg_bot_key = "8609710923:AAFT2xHualvXTo0KrylpG1zTMB1YqzmuVCw"
+exchanger_key = "03e0c81500adaac97a59e416"
 bot = telebot.TeleBot(tg_bot_key)
 
 
 def get_exchange(base, target):
-    url = f'https://v6.exchangerate-api.com/v6/{exchanger_key}/latest/{base}'
+    url = f"https://v6.exchangerate-api.com/v6/{exchanger_key}/latest/{base}"
     response = requests.get(url)
     data = response.json()
-
-    if data.get('result') != 'success':
+    if response.status_code == 200 and target in data["rates"]:
+        return data["rates"][target]
+    else:
         return None
 
-    rates = data.get('conversion_rates', {})
-    return rates.get(target)
 
-
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=["start"])
 def start(message):
     kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton('100 USD KZT')
-    btn2 = types.KeyboardButton('100 USD EUR')
-    btn3 = types.KeyboardButton('100 EUR KZT')
+    btn1 = types.KeyboardButton("100 USD KZT")
+    btn2 = types.KeyboardButton("100 USD EUR")
+    btn3 = types.KeyboardButton("100 EUR KZT")
     kb.row(btn1)
     kb.row(btn2)
     kb.row(btn3)
-    bot.send_message(message.chat.id,        
+    bot.send_message(
+        message.chat.id,
         "👋 Hi! I am a currency exchanger 💱\n\n"
         "You can:\n"
-        "• Use buttons below\n"
-        "• Or write: `100 USD KZT`\n"
-        "• Or just: `USD KZT`",
-        reply_markup=kb)
-def help_cmd(message):
+        "Use buttons below\n"
+        "Or write: 100 USD KZT\n"
+        "Or just: USD KZT",
+        reply_markup=kb,
+    )
+
+
+@bot.message_handler(commands=["help"])
+def help(message):
     kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton('100 USD KZT')
-    btn2 = types.KeyboardButton('100 USD EUR')
-    btn3 = types.KeyboardButton('100 EUR KZT')
+    btn1 = types.KeyboardButton("100 USD KZT")
+    btn2 = types.KeyboardButton("100 USD EUR")
+    btn3 = types.KeyboardButton("100 EUR KZT")
     kb.row(btn1)
     kb.row(btn2)
     kb.row(btn3)
@@ -51,42 +54,36 @@ def help_cmd(message):
         "✅ Without amount (default = 1):\n"
         "`USD KZT`\n\n"
         "✅ Or use buttons under your keyboard 👇",
-        reply_markup=kb
+        reply_markup=kb,
     )
-    
 
-@bot.message_handler(content_types=['text'])
+
+@bot.message_handler(content_types=["text"])
 def convert(message):
     try:
         txt = message.text.upper().split()
-
         if len(txt) == 2:
             amount = 1
             base, target = txt
-
-        # 100 USD KZT
         elif len(txt) == 3:
             amount = float(txt[0])
             base, target = txt[1], txt[2]
-
         else:
-            raise ValueError
-
+            a = 0 / 0
         rate = get_exchange(base, target)
         if not rate:
-            raise ValueError
-
+            a = int("kdd")
         result = amount * rate
+        bot.send_message(message.chat.id, f"{amount} {base} = {result:.2f} {target}")
+    except ZeroDivisionError:
+        bot.send_message(
+            message.chat.id, "You done something wrong.\nExample:\n100 USD KZT\nUSD KZT"
+        )
+    except ValueError:
         bot.send_message(
             message.chat.id,
-            f"{amount} {base} = {result:.2f} {target}"
+            "You done something wrong.\nYour target currency arent available",
         )
 
-    except:
-        bot.send_message(
-            message.chat.id,
-            "❌ Wrong format\nExample:\n100 USD KZT\nUSD KZT"
-        )
 
-    
 bot.infinity_polling()
