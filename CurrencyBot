@@ -2,8 +2,8 @@ import telebot
 import requests
 from telebot import types
 
-tg_bot_key = "8609710923:AAFT2xHualvXTo0KrylpG1zTMB1YqzmuVCw"
-exchanger_key = "03e0c81500adaac97a59e416"
+tg_bot_key = "token from bot father    "
+exchanger_key = "api-token"
 bot = telebot.TeleBot(tg_bot_key)
 
 
