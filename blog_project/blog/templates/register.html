@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 0; }
+    
+    nav {
+      background: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      box-sizing: border-box; /* Учитывать padding */
+    }
+    nav a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    nav a:hover {
+      color: #007bff;
+    }
+
+    .content-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* Начинаем сверху, чтобы было больше места */
+      padding-top: 50px; /* Отступ от навигации */
+      padding-bottom: 50px; /* Отступ снизу */
+      min-height: calc(100vh - 60px - 30px); /* Примерная высота без nav и margin-bottom */
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .auth-card { background: white; padding: 2.5rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    h2 { text-align: center; margin-bottom: 1.5rem; color: #495057; }
+    form p { margin-bottom: 1.2rem; }
+    input { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; }
+    button { width: 100%; background-color: #6610f2; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    button:hover { background-color: #520dc2; transform: translateY(-1px); }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">🏠 Главная</a>
+    <a href="/create">✍️ Написать статью</a>
+    <a href="/register">👤 Регистрация</a>
+  </nav>
+
+  <div class="content-wrapper">
+    <div class="auth-card">
+      <h2>Регистрация</h2>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

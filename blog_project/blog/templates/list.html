@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Блог</title>
+    <style>
+      body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; color: #1c1e21; line-height: 1.6; margin: 0; padding: 0; }
+      
+      nav {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      nav a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+      nav a:hover {
+        color: #007bff;
+      }
+
+      .main-container {
+        max-width: 800px;
+        margin: 20px auto; /* Добавить верхний/нижний отступ от навигации и края */
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .article-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px; }
+      h2 { margin-top: 0; color: #050505; }
+      .meta { font-size: 0.9rem; color: #65676b; margin-bottom: 15px; }
+      .article-text { font-size: 1.1rem; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+      
+      .comment-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; }
+      .comment { border-bottom: 1px solid #e4e6eb; padding: 8px 0; font-size: 0.95rem; }
+      .comment:last-child { border-bottom: none; }
+      
+      textarea { width: 100%; min-height: 80px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; resize: vertical; }
+      .btn-send { background-color: #42b72a; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+      .btn-send:hover { background-color: #36a420; }
+      .empty-msg { text-align: center; color: #888; font-style: italic; }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">🏠 Главная</a>
+      <a href="/create">✍️ Написать статью</a>
+      <a href="/register">👤 Регистрация</a>
+    </nav>
+
+    <div class="main-container">
+      {% for article in articles %}
+      <div class="article-card">
+        <h2>{{ article.head }}</h2>
+        <div class="meta">
+          <strong>Автор:</strong> {{ article.author.name }} | 
+          <small>Опубликовано: {{ article.date }}</small>
+        </div>
+        <div class="article-text">{{ article.text }}</div>
+
+        <form action="/article/{{ article.id }}/comment" method="post">
+          {% csrf_token %}
+          <textarea name="text" placeholder="Ваш комментарий..."></textarea>
+          <button type="submit" class="btn-send">Отправить</button>
+        </form>
+
+        <div class="comment-section">
+          <h3>Комментарии:</h3>
+          {% for comment in article.comment_set.all %}
+          <div class="comment">
+            <strong>{{ comment.author.name }}:</strong> {{ comment.text }}
+          </div>
+          {% empty %}
+          <p class="empty-msg">Комментариев пока нет. Будьте первым!</p>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="article-card">
+        <p class="empty-msg">Статей еще никто не написал.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
