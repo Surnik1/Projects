@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Мои бронирования</h1>
+    
+    <form method="get">
+        <input type="email" name="email" placeholder="Введите ваш email" value="{{ email }}" required>
+        <button type="submit" class="btn">Найти</button>
+    </form>
+
+    <hr>
+
+    {% if bookings %}
+        {% for booking in bookings %}
+            <div class="event-card">
+                <h4>{{ booking.event.name }}</h4>
+                <p>Забронировано мест: {{ booking.seats_booked }}</p>
+                <form action="{% url 'cancel_booking' booking.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-cancel">Отменить бронь</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% elif email %}
+        <p>Для почты {{ email }} бронирований не найдено.</p>
+    {% endif %}
+{% endblock %}
