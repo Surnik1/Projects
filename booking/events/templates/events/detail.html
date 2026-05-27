@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ event.name }}</h1>
+    <p><strong>Дата:</strong> {{ event.date }}</p>
+    <p><strong>Осталось мест:</strong> {{ event.available_seats }}</p>
+    <p>{{ event.description }}</p>
+
+    <hr>
+    <h3>Записаться на мероприятие</h3>
+    
+    {% if event.available_seats > 0 %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Подтвердить регистрацию</button>
+        </form>
+    {% else %}
+        <p style="color: red;">Извините, мест больше нет.</p>
+    {% endif %}
+    
+    <br>
+    <a href="{% url 'event_list' %}">← Назад к списку</a>
+{% endblock %}
